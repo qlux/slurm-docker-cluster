@@ -22,6 +22,7 @@ services:
       - etc_munge:/etc/munge
       - etc_slurm:/etc/slurm
       - var_log_slurm:/var/log/slurm
+      - opt:/opt
     expose:
       - "6819"
     depends_on:
@@ -37,6 +38,7 @@ services:
       - etc_slurm:/etc/slurm
       - slurm_jobdir:/data
       - var_log_slurm:/var/log/slurm
+      - opt:/opt
     expose:
       - "6817"
     depends_on:
@@ -52,6 +54,7 @@ services:
       - etc_slurm:/etc/slurm
       - slurm_jobdir:/data
       - var_log_slurm:/var/log/slurm
+      - opt:/opt
     expose:
       - "6818"
     depends_on:
@@ -67,6 +70,7 @@ services:
       - etc_slurm:/etc/slurm
       - slurm_jobdir:/data
       - var_log_slurm:/var/log/slurm
+      - opt:/opt
     expose:
       - "6818"
     depends_on:
@@ -78,3 +82,4 @@ volumes:
   slurm_jobdir:
   var_lib_mysql:
   var_log_slurm:
+  opt:

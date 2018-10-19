@@ -13,8 +13,9 @@ ARG SLURM_DOWNLOAD_URL=https://download.schedmd.com/slurm/slurm-17.02.11.tar.bz2
 ARG GOSU_VERSION=1.10
 
 RUN yum makecache fast \
-    && yum -y install epel-release \
-    && yum -y install \
+    && yum -y install epel-release
+RUN groupadd -r slurm --gid=2001 && useradd -r -g slurm --uid=2001 slurm
+RUN yum -y install \
            wget \
            bzip2 \
            perl \
@@ -34,6 +35,10 @@ RUN yum makecache fast \
            mariadb-devel \
            psmisc \
            bash-completion \
+           lua-devel \
+           pmix-devel \
+           numactl-devel \
+           hwloc hwloc-devel \
     && yum clean all \
     && rm -rf /var/cache/yum
 
@@ -42,25 +47,26 @@ RUN pip install Cython nose \
 
 RUN set -x \
     && wget -O /usr/local/bin/gosu "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-amd64" \
-#    && wget -O /usr/local/bin/gosu.asc "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-amd64" \
-#    && export GNUPGHOME="$(mktemp -d)" \
-#    && gpg --keyserver ha.pool.sks-keyservers.net --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4 \
-#    && gpg --batch --verify /usr/local/bin/gosu.asc /usr/local/bin/gosu \
-#    && rm -rf $GNUPGHOME /usr/local/bin/gosu.asc \
     && chmod +x /usr/local/bin/gosu \
     && gosu nobody true
-
-RUN groupadd -r slurm --gid=995 && useradd -r -g slurm --uid=995 slurm
 
 RUN set -x \
     && wget -O slurm.tar.bz2 "$SLURM_DOWNLOAD_URL" \
     && echo "$SLURM_DOWNLOAD_MD5" slurm.tar.bz2 | md5sum -c - \
     && mkdir /usr/local/src/slurm \
     && tar jxf slurm.tar.bz2 -C /usr/local/src/slurm --strip-components=1 \
-    && rm slurm.tar.bz2 \
-    && cd /usr/local/src/slurm \
-    && ./configure --enable-debug --prefix=/usr --sysconfdir=/etc/slurm \
-        --with-mysql_config=/usr/bin  --libdir=/usr/lib64 \
+    && rm slurm.tar.bz2
+
+ARG SLURM_PREFIX=/opt/software/slurm
+ENV PATH ${SLURM_PREFIX}/bin:${SLURM_PREFIX}/sbin:$PATH
+
+RUN cd /usr/local/src/slurm \
+    && ./configure \
+    --enable-debug \
+    --prefix=${SLURM_PREFIX} \
+    --sysconfdir=/etc/slurm \
+    --with-mysql_config=/usr/bin \
+    --libdir=/usr/lib64 \
     && make install \
     && install -D -m644 etc/cgroup.conf.example /etc/slurm/cgroup.conf.example \
     && install -D -m644 etc/slurm.conf.example /etc/slurm/slurm.conf.example \

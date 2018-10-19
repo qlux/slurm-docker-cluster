@@ -18,7 +18,7 @@ then
     }
     echo "-- Database is now active ..."
 
-    exec gosu slurm /usr/sbin/slurmdbd -Dvvv
+    exec gosu slurm slurmdbd -Dvvv
 fi
 
 if [ "$1" = "slurmctld" ]
@@ -36,7 +36,7 @@ then
     echo "-- slurmdbd is now active ..."
 
     echo "---> Starting the Slurm Controller Daemon (slurmctld) ..."
-    exec gosu slurm /usr/sbin/slurmctld -Dvvv
+    exec gosu slurm slurmctld -Dvvv
 fi
 
 if [ "$1" = "slurmd" ]
@@ -54,7 +54,7 @@ then
     echo "-- slurmctld is now active ..."
 
     echo "---> Starting the Slurm Node Daemon (slurmd) ..."
-    exec /usr/sbin/slurmd -Dvvv
+    exec slurmd -Dvvv
 fi
 
 exec "$@"
