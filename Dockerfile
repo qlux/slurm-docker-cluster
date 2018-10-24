@@ -46,16 +46,16 @@ RUN set -x \
     && chmod +x /usr/local/bin/gosu \
     && gosu nobody true
 
+ARG SLURM_VERSION=17.11.7
+ARG SLURM_DOWNLOAD_MD5=6452300949ba375c3898ba7ce7959f05
+ARG SLURM_DOWNLOAD_URL=https://download.schedmd.com/slurm/slurm-${SLURM_VERSION}.tar.bz2
+
 RUN set -x \
     && wget -O slurm.tar.bz2 "$SLURM_DOWNLOAD_URL" \
     && echo "$SLURM_DOWNLOAD_MD5" slurm.tar.bz2 | md5sum -c - \
     && mkdir /usr/local/src/slurm \
     && tar jxf slurm.tar.bz2 -C /usr/local/src/slurm --strip-components=1 \
     && rm slurm.tar.bz2
-
-ARG SLURM_VERSION=17.11.7
-ARG SLURM_DOWNLOAD_MD5=6452300949ba375c3898ba7ce7959f05
-ARG SLURM_DOWNLOAD_URL=https://download.schedmd.com/slurm/slurm-${SLURM_VERSION}.tar.bz2
 
 ARG SLURM_PREFIX=/opt/software/slurm
 ENV PATH ${SLURM_PREFIX}/bin:${SLURM_PREFIX}/sbin:$PATH
