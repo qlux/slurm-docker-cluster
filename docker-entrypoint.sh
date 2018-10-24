@@ -1,7 +1,9 @@
 #!/bin/bash
 set -e
+DAEMON=$1
+shift;
 
-if [ "$1" = "slurmdbd" ]
+if [ "${DAEMON}" = "slurmdbd" ]
 then
     echo "---> Starting the MUNGE Authentication service (munged) ..."
     gosu munge /usr/sbin/munged
@@ -18,10 +20,9 @@ then
     }
     echo "-- Database is now active ..."
 
-    exec gosu slurm slurmdbd -Dvvv
-fi
+    exec gosu slurm slurmdbd $@
 
-if [ "$1" = "slurmctld" ]
+elif [ "${DAEMON}" = "slurmctld" ]
 then
     echo "---> Starting the MUNGE Authentication service (munged) ..."
     gosu munge /usr/sbin/munged
@@ -36,10 +37,9 @@ then
     echo "-- slurmdbd is now active ..."
 
     echo "---> Starting the Slurm Controller Daemon (slurmctld) ..."
-    exec gosu slurm slurmctld -Dvvv
-fi
+    exec gosu slurm slurmctld $@
 
-if [ "$1" = "slurmd" ]
+elif [ "${DAEMON}" = "slurmd" ]
 then
     echo "---> Starting the MUNGE Authentication service (munged) ..."
     gosu munge /usr/sbin/munged
@@ -54,7 +54,8 @@ then
     echo "-- slurmctld is now active ..."
 
     echo "---> Starting the Slurm Node Daemon (slurmd) ..."
-    exec slurmd -Dvvv
-fi
+    exec slurmd $@
 
-exec "$@"
+else
+    exec "${DAEMON} $@"
+fi
