@@ -22,7 +22,6 @@ services:
       - etc_munge:/etc/munge
       - etc_slurm:/etc/slurm
       - var_log_slurm:/var/log/slurm
-      - opt:/opt
     expose:
       - "6819"
     depends_on:
@@ -30,7 +29,7 @@ services:
 
   slurmctld:
     image: slurm-docker-cluster:17.11.7
-    command: ["slurmctld", "-D", "-vvv", "-c"]
+    command: ["slurmctld", "-D", "-vvv", "-c", "-i"]
     container_name: slurmctld
     hostname: slurmctld
     volumes:
@@ -38,7 +37,6 @@ services:
       - etc_slurm:/etc/slurm
       - slurm_jobdir:/data
       - var_log_slurm:/var/log/slurm
-      - opt:/opt
     ports:
       - "6817:6817"
     depends_on:
@@ -54,7 +52,6 @@ services:
       - etc_slurm:/etc/slurm
       - slurm_jobdir:/data
       - var_log_slurm:/var/log/slurm
-      - opt:/opt
     expose:
       - "6818"
     depends_on:
@@ -70,7 +67,6 @@ services:
       - etc_slurm:/etc/slurm
       - slurm_jobdir:/data
       - var_log_slurm:/var/log/slurm
-      - opt:/opt
     expose:
       - "6818"
     depends_on:
@@ -82,4 +78,3 @@ volumes:
   slurm_jobdir:
   var_lib_mysql:
   var_log_slurm:
-  opt:
