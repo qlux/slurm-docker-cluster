@@ -22,9 +22,6 @@ RUN yum -y install \
            munge-devel \
            python-devel \
            python-pip \
-           python34 \
-           python34-devel \
-           python34-pip \
            mariadb-server \
            mariadb-devel \
            psmisc \
@@ -32,8 +29,18 @@ RUN yum -y install \
            lua-devel \
            pmix-devel \
            numactl-devel \
-           hwloc hwloc-devel \
-    && yum clean all \
+           hwloc hwloc-devel
+
+RUN yum -y install https://centos7.iuscommunity.org/ius-release.rpm
+RUN yum -y install \
+           python36u \
+           python36u-devel \
+           python36u-pip
+
+RUN ln -sf /usr/bin/python3.6 /usr/bin/python3
+RUN ln -sf /usr/bin/pip3.6 /usr/bin/pip3
+
+RUN yum clean all \
     && rm -rf /var/cache/yum
 
 RUN pip install Cython nose \
@@ -72,10 +79,9 @@ RUN cd /usr/local/src/slurm \
     && install -D -m644 etc/slurm.conf.example /etc/slurm/slurm.conf.example \
     && install -D -m644 etc/slurm.epilog.clean /etc/slurm/slurm.epilog.clean \
     && install -D -m644 etc/slurmdbd.conf.example /etc/slurm/slurmdbd.conf.example \
-    && install -D -m644 contribs/slurm_completion_help/slurm_completion.sh /etc/profile.d/slurm_completion.sh \
-    && cd \
-    && rm -rf /usr/local/src/slurm \
-    && mkdir /etc/sysconfig/slurm \
+    && install -D -m644 contribs/slurm_completion_help/slurm_completion.sh /etc/profile.d/slurm_completion.sh
+
+RUN mkdir /etc/sysconfig/slurm \
         /var/spool/slurmd \
         /var/run/slurmd \
         /var/run/slurmdbd \
@@ -93,6 +99,20 @@ RUN cd /usr/local/src/slurm \
         /var/lib/slurmd/fed_mgr_state \
     && chown -R slurm:slurm /var/*/slurm* \
     && /sbin/create-munge-key
+
+# Plugins
+WORKDIR /usr/local/src
+RUN git clone https://github.com/stanford-rc/slurm-spank-lua
+WORKDIR slurm-spank-lua
+
+RUN cc -I/usr/local/src/slurm/ -o spank_lua.o -fPIC -c lua.c \
+    && cc -o lib/list.o -fPIC -c lib/list.c \
+    && cc -shared -fPIC -o spank_lua.so spank_lua.o lib/list.o -llua \
+    && cp spank_lua.so /usr/lib/spank_lua.so
+
+WORKDIR /
+RUN rm -rf /usr/local/src/slurm \
+    && rm -rf /usr/local/src/slurm-spank-lua
 
 COPY slurm.conf /etc/slurm/slurm.conf
 COPY slurmdbd.conf /etc/slurm/slurmdbd.conf
