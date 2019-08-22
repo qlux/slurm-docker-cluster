@@ -53,8 +53,8 @@ RUN set -x \
     && chmod +x /usr/local/bin/gosu \
     && gosu nobody true
 
-ARG SLURM_VERSION=17.11.7
-ARG SLURM_DOWNLOAD_MD5=6452300949ba375c3898ba7ce7959f05
+ARG SLURM_VERSION=19.05.2
+ARG SLURM_DOWNLOAD_MD5=6a6777f24fe54e356120c56c7774c18a
 ARG SLURM_DOWNLOAD_URL=https://download.schedmd.com/slurm/slurm-${SLURM_VERSION}.tar.bz2
 
 RUN set -x \
