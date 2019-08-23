@@ -10,26 +10,28 @@ RUN yum makecache fast \
     && yum -y install epel-release
 RUN groupadd -r slurm --gid=2001 && useradd -r -g slurm --uid=2001 slurm
 RUN yum -y install \
-           wget \
-           bzip2 \
-           perl \
-           gcc \
-           gcc-c++\
-           vim-enhanced \
-           git \
-           make \
-           munge \
-           munge-devel \
-           python-devel \
-           python-pip \
-           mariadb-server \
-           mariadb-devel \
-           psmisc \
-           bash-completion \
-           lua-devel \
-           pmix-devel \
-           numactl-devel \
-           hwloc hwloc-devel
+          bash-completion \
+          bzip2 \
+          gcc \
+          gcc-c++\
+          git \
+          hwloc hwloc-devel \
+          lua-devel \
+          make \
+          mariadb-devel \
+          mariadb-server \
+          munge \
+          munge-devel \
+          net-tools \
+          numactl-devel \
+          openssh-server \
+          perl \
+          pmix-devel \
+          psmisc \
+          python-devel \
+          python-pip \
+          vim-enhanced \
+          wget
 
 RUN yum -y install https://centos7.iuscommunity.org/ius-release.rpm
 RUN yum -y install \
@@ -100,6 +102,10 @@ RUN mkdir /etc/sysconfig/slurm \
     && chown -R slurm:slurm /var/*/slurm* \
     && /sbin/create-munge-key
 
+# SSHD
+RUN /usr/bin/ssh-keygen -A
+RUN groupadd --gid=5000 usertest && useradd --gid=5000 --uid=5000 usertest
+
 # Plugins
 WORKDIR /usr/local/src
 RUN git clone https://github.com/stanford-rc/slurm-spank-lua
@@ -108,11 +114,15 @@ WORKDIR slurm-spank-lua
 RUN cc -I/usr/local/src/slurm/ -o spank_lua.o -fPIC -c lua.c \
     && cc -o lib/list.o -fPIC -c lib/list.c \
     && cc -shared -fPIC -o spank_lua.so spank_lua.o lib/list.o -llua \
-    && cp spank_lua.so /usr/lib/spank_lua.so
+    && cp spank_lua.so /usr/lib64/spank_lua.so
+
+WORKDIR /usr/local/src
+RUN git clone https://github.com/quantumhpc/slurm-spank-stunnel
+WORKDIR slurm-spank-stunnel
+RUN gcc -I/usr/local/src/slurm/ -shared -fPIC -o slurm-spank-stunnel.so slurm-spank-stunnel.c \
+    && cp slurm-spank-stunnel.so /usr/lib64/slurm-spank-stunnel.so
 
 WORKDIR /
-RUN rm -rf /usr/local/src/slurm \
-    && rm -rf /usr/local/src/slurm-spank-lua
 
 COPY slurm.conf /etc/slurm/slurm.conf
 COPY slurmdbd.conf /etc/slurm/slurmdbd.conf

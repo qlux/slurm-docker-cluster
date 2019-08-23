@@ -20,7 +20,8 @@ services:
     hostname: slurmdbd
     volumes:
       - etc_munge:/etc/munge
-      - etc_slurm:/etc/slurm
+      - ./etc_slurm:/etc/slurm
+              #- etc_slurm:/etc/slurm
       - var_log_slurm:/var/log/slurm
     expose:
       - "6819"
@@ -34,8 +35,11 @@ services:
     hostname: slurmctld
     volumes:
       - etc_munge:/etc/munge
-      - etc_slurm:/etc/slurm
-      - slurm_jobdir:/data
+      - ./home:/home
+      - ./etc_slurm:/etc/slurm
+              #- etc_slurm:/etc/slurm
+      - ./data:/data
+        #      -- slurm_jobdir:/data
       - var_log_slurm:/var/log/slurm
     ports:
       - "6817:6817"
@@ -44,13 +48,16 @@ services:
 
   c1:
     image: slurm-docker-cluster:17.11.7
-    command: ["slurmd", "-D", "-v", "-b"]
+    command: ["slurmd", "-D", "-vvv", "-b"]
     hostname: c1
     container_name: c1
     volumes:
       - etc_munge:/etc/munge
-      - etc_slurm:/etc/slurm
-      - slurm_jobdir:/data
+      - ./home:/home
+      - ./etc_slurm:/etc/slurm
+              #- etc_slurm:/etc/slurm
+      - ./data:/data
+        #      -- slurm_jobdir:/data
       - var_log_slurm:/var/log/slurm
     expose:
       - "6818"
@@ -59,13 +66,16 @@ services:
 
   c2:
     image: slurm-docker-cluster:17.11.7
-    command: ["slurmd", "-D", "-v", "-b"]
+    command: ["slurmd", "-D", "-vvv", "-b"]
     hostname: c2
     container_name: c2
     volumes:
       - etc_munge:/etc/munge
-      - etc_slurm:/etc/slurm
-      - slurm_jobdir:/data
+      - ./home:/home
+      - ./etc_slurm:/etc/slurm
+        #- etc_slurm:/etc/slurm
+      - ./data:/data
+#      - slurm_jobdir:/data
       - var_log_slurm:/var/log/slurm
     expose:
       - "6818"
@@ -74,7 +84,7 @@ services:
 
 volumes:
   etc_munge:
-  etc_slurm:
-  slurm_jobdir:
+          #  etc_slurm:
+#  slurm_jobdir:
   var_lib_mysql:
   var_log_slurm:

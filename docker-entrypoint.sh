@@ -24,6 +24,9 @@ then
 
 elif [ "${DAEMON}" = "slurmctld" ]
 then
+    echo "---> Starting SSH Server ..."
+    /usr/sbin/sshd -D &
+
     echo "---> Starting the MUNGE Authentication service (munged) ..."
     gosu munge /usr/sbin/munged
 
@@ -41,6 +44,9 @@ then
 
 elif [ "${DAEMON}" = "slurmd" ]
 then
+    echo "---> Starting SSH Server ..."
+    /usr/sbin/sshd -D &
+
     echo "---> Starting the MUNGE Authentication service (munged) ..."
     gosu munge /usr/sbin/munged
 
